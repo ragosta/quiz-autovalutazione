@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Autovalutazione progetto</title>
+<style>
+:root{--pink:#ec4899;--purple:#8b5cf6;--blue:#0ea5e9;--green:#22c55e;--yellow:#f59e0b;--bg:#f8fafc;--text:#1f2937}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:linear-gradient(135deg,#fff1f2,#eff6ff,#f0fdf4);color:var(--text);padding:24px}
+.card{max-width:1100px;margin:auto;background:rgba(255,255,255,.94);border-radius:28px;box-shadow:0 20px 45px rgba(15,23,42,.14);overflow:hidden;border:1px solid rgba(255,255,255,.8)}
+.header{padding:28px;background:linear-gradient(90deg,#ec4899,#8b5cf6,#0ea5e9,#22c55e);color:#fff}
+.header h1{margin:0;font-size:32px}
+.header p{margin:10px 0 0;line-height:1.5;max-width:860px}
+.content{padding:24px}
+.badges{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px}
+.badge{padding:8px 12px;border-radius:999px;color:#fff;font-weight:700;font-size:14px}
+.controls{display:flex;gap:12px;flex-wrap:wrap;margin:16px 0 18px}
+button{border:0;border-radius:14px;padding:12px 18px;cursor:pointer;font-weight:700;font-size:15px}
+.primary{background:linear-gradient(90deg,#22c55e,#06b6d4);color:#fff}.secondary{background:#e5e7eb;color:#111827}
+.table-wrap{overflow-x:auto;border-radius:18px;border:1px solid #e5e7eb}
+table{width:100%;border-collapse:collapse;background:#fff}
+th,td{padding:12px 10px;border-bottom:1px solid #eef2f7;text-align:center;vertical-align:middle}
+th:first-child,td:first-child{text-align:left}
+th{color:#fff;font-size:14px}
+th:nth-child(1){background:#111827}
+th:nth-child(2){background:#ec4899}
+th:nth-child(3){background:#8b5cf6}
+th:nth-child(4){background:#0ea5e9}
+th:nth-child(5){background:#22c55e}
+tr:nth-child(even) td{background:#fafafa}
+select{width:100%;padding:10px;border-radius:12px;border:2px solid #dbeafe;background:#fff;font-weight:700;font-size:15px}
+.summary{margin-top:18px;padding:18px;border-radius:20px;background:linear-gradient(135deg,#fff,#f8fafc);border:1px solid #e5e7eb}
+.label{display:inline-block;padding:8px 14px;border-radius:999px;color:#fff;font-weight:800;margin-bottom:10px}
+.bar{height:16px;background:#e2e8f0;border-radius:999px;overflow:hidden;margin-top:12px}
+.bar>div{height:100%;width:0;border-radius:999px;transition:width .35s ease}
+.small{margin-top:8px;font-size:14px;color:#475569}
+.face{font-size:28px;vertical-align:middle;margin-right:8px}
+.note{margin-top:10px;padding:12px 14px;border-left:5px solid #ec4899;background:#fff7fb;border-radius:12px}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="header">
+    <h1>🌈 Autovalutazione dello studente</h1>
+    <p>Scheda interattiva coerente con il progetto allegato: aiuta gli studenti a riflettere su partecipazione, collaborazione, emozioni e impegno durante le attività.</p>
+  </div>
+  <div class="content">
+    <div class="badges">
+      <span class="badge" style="background:#ec4899">Partecipazione</span>
+      <span class="badge" style="background:#8b5cf6">Collaborazione</span>
+      <span class="badge" style="background:#0ea5e9">Emozioni</span>
+      <span class="badge" style="background:#22c55e">Impegno</span>
+    </div>
+    <div class="controls">
+      <button class="primary" onclick="calculate()">✨ Calcola esito</button>
+      <button class="secondary" onclick="resetForm()">↩️ Azzera</button>
+    </div>
+    <div class="table-wrap">
+      <table id="grid">
+        <thead>
+          <tr><th>Indicatore</th><th>😁 Tanto</th><th>🙂 Sì</th><th>😐 Poco</th><th>🙁 No</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <div class="summary" id="summary">
+      <span class="label" style="background:#ec4899">DA COMPILARE</span>
+      <div class="face">🌟</div><strong>Compila la griglia e premi “Calcola esito”.</strong>
+      <div class="bar"><div id="barFill" style="background:linear-gradient(90deg,#ec4899,#8b5cf6,#0ea5e9,#22c55e)"></div></div>
+      <div class="small" id="detail"></div>
+      <div class="note">Le domande sono pensate per il progetto di classe e per l'autovalutazione dopo attività cooperative e inclusive.</div>
+    </div>
+  </div>
+</div>
+<script>
+const items = [
+  'Ho partecipato con interesse alle attività.',
+  'Ho collaborato con i compagni rispettando i turni.',
+  'Ho ascoltato le idee degli altri senza interrompere.',
+  'Ho riconosciuto e gestito bene le mie emozioni.',
+  'Ho capito le consegne dell’insegnante.',
+  'Ho chiesto aiuto quando ne avevo bisogno.',
+  'Ho usato correttamente materiali e strumenti.',
+  'Ho rispettato i tempi del lavoro.',
+  'Mi sono sentito/a coinvolto/a nell’attività.',
+  'Penso di aver lavorato bene nel gruppo.'
+];
+const options = ['Tanto','Sì','Poco','No'];
+const scoreMap = {Tanto:3,Sì:2,Poco:1,No:0};
+const faceMap = {Tanto:'😁',Sì:'🙂',Poco:'😐',No:'🙁'};
+const tbody = document.querySelector('#grid tbody');
+items.forEach((t,i)=>{
+  const tr = document.createElement('tr');
+  tr.innerHTML = `<td>${i+1}. ${t}</td>` + options.map(o=>`<td><select aria-label="${t} ${o}"><option value="">-</option><option>${faceMap[o]} ${o}</option></select></td>`).join('');
+  tbody.appendChild(tr);
+});
+function calculate(){
+  let total=0, max=items.length*3, filled=0;
+  document.querySelectorAll('#grid tbody tr').forEach(tr=>{
+    const sel=[...tr.querySelectorAll('select')].find(s=>s.value);
+    if(sel){
+      const key = sel.value.replace(/^[^ ]+\s/,'');
+      total += scoreMap[key];
+      filled++;
+    }
+  });
+  const percent = max ? Math.round(total/max*100) : 0;
+  let label='da migliorare', color='#ef4444', badge='#ef4444', emoji='🙁';
+  if(percent>=80){label='eccellente'; color='#22c55e'; badge='#16a34a'; emoji='🏆'}
+  else if(percent>=60){label='positivo'; color='#0ea5e9'; badge='#0284c7'; emoji='🎉'}
+  else if(percent>=40){label='discreto'; color='#f59e0b'; badge='#d97706'; emoji='👍'}
+  document.getElementById('summary').innerHTML = `<span class="label" style="background:${badge}">${label.toUpperCase()}</span><div class="face">${emoji}</div><strong>Profilo ${label} (${percent}%).</strong><div class="bar"><div id="barFill" style="width:${percent}%;background:linear-gradient(90deg,#ec4899,#8b5cf6,#0ea5e9,#22c55e)"></div></div><div class="small">Voci compilate: ${filled}/${items.length}. Punteggio totale: ${total}/${max}.</div><div class="note">La scheda riprende i criteri dell'autovalutazione del progetto, con attenzione a partecipazione, ascolto, emozioni, impegno e lavoro di gruppo.</div>`;
+}
+function resetForm(){
+  document.querySelectorAll('select').forEach(s=>s.value='');
+  document.getElementById('summary').innerHTML = `<span class="label" style="background:#ec4899">DA COMPILARE</span><div class="face">🌟</div><strong>Compila la griglia e premi “Calcola esito”.</strong><div class="bar"><div id="barFill" style="background:linear-gradient(90deg,#ec4899,#8b5cf6,#0ea5e9,#22c55e)"></div></div><div class="small" id="detail"></div><div class="note">Le domande sono pensate per il progetto di classe e per l'autovalutazione dopo attività cooperative e inclusive.</div>`;
+}
+</script>
+</body>
+</html>
